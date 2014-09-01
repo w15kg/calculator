@@ -7,58 +7,27 @@ class Calculator
 
 		// 先頭が乗除演算子の場合
 		if (preg_match('/^\s*[\*\/]/', $expr)) {
-			//echo "invalid 1\n";
 			return false;
 		}
 		// 数字の間にスペースがある場合
 		if (preg_match('/[0-9][\s\(\)][0-9]/', $expr)) {
-			//echo "invalid 2\n";
 			return false;
 		}
 		// 演算子が続く場合に乗除演算子が後に付く場合
 		if (preg_match('/[\+\-\*\/][\*\/]/', $expr)) {
-			//echo "invalid 3\n";
 			return false;
 		}
 		// 演算子が３つ以上続く場合
 		if (preg_match('/[\+\-\*\/]{3}/', $expr)) {
-			//echo "invalid 4\n";
 			return false;
 		}
 
 		// 整数のみを扱えることとする場合
 		// 数字の間にドットがある場合をエラーとする
 		if (preg_match('/[0-9][\.][0-9]/', $expr)) {
-			//echo "invalid 5\n";
 			return false;
 		}
 
-	/*
-		$cnt_o = 0;
-		foreach (str_split($expr) as $v) {
-			if ( preg_match('/[0-9\.]/', $v)) {
-				$cnt_o = 0;
-			} elseif (preg_match('/[\+\-\*\/]/', $v)) {
-				if ($cnt_o > 1) {
-					// 演算子が３つ続くのはエラーとする
-					echo "invalid\n";
-					exit;
-				}
-				if (preg_match('/[\*\/]/', $v)) {
-					// 乗除が続くのはエラーとする
-					echo "invalid\n";
-					exit;
-				}
-				$cnt_o++;
-			} elseif (preg_match('/\S/', $v)) {
-				// スペース以外の文字があればは無効
-				echo "invalid\n";
-				exit;
-			}
-
-		}
-	*/
-	echo "Check OK.\n";
 		return true;
 	}
 
@@ -68,12 +37,8 @@ class Calculator
 
 		$expr1 = array();
 		$number = '';
-		$operator = '';
-		$cnt_n = 0;
-		$cnt_o = 0;
 		for ($i = 0; $i < count($value); $i++) {
 			$v = $value[$i];
-	//echo $v."\n";
 			if (preg_match('/[0-9\.]/',$v)) {
 				$number .= $v;
 			} elseif (preg_match('/[\+\-\*\/]/',$v)) {
@@ -90,7 +55,6 @@ class Calculator
 				$cnt_nested = 0;
 				for ($j = $i+1; $j < count($value); $j++) {
 					$v = $value[$j];
-	//echo $v."\n";
 					if ($v == '(') {
 						$cnt_nested++;
 					} elseif ($v == ')') {
@@ -115,7 +79,6 @@ class Calculator
 		if ($number != '') {
 			$expr1[] = $number;
 		}
-	//var_dump($expr1);
 
 		return $expr1;
 	}
@@ -132,7 +95,6 @@ class Calculator
 
 		for ($i = 0; $i < count($value); $i++) {
 			$v = $value[$i];
-	//echo $v."\n";
 			if (is_array($v)) {
 				//$numbers[$cnt_n] = multiplying($v);
 				$numbers[$cnt_n] .= $this->adding($v);
@@ -143,7 +105,6 @@ class Calculator
 					$numbers[$cnt_n] = str_replace('+-','-',$numbers[$cnt_n]);
 					$numbers[$cnt_n] = str_replace('-+','-',$numbers[$cnt_n]);
 					$numbers[$cnt_n] = str_replace('++','+',$numbers[$cnt_n]);
-
 				}
 
 				$cnt_n = 1;
@@ -159,13 +120,12 @@ class Calculator
 				} else {
 					$operator = $v;
 					$cnt_o = 1;
-				//	$cnt_n++;
 				}
 			} else {
 				// スペースなど数値と演算子以外を無視
 				echo "DEBUG:Space!\n";
 			}
-	echo "DEBUG:$numbers[0]$operator$numbers[1]\n";
+//echo "DEBUG:$numbers[0]$operator$numbers[1]\n";
 			if (is_numeric($numbers[1])) {
 					// 加減演算は保留
 					if (preg_match('/[\+\-]/', $operator)) {
@@ -183,15 +143,11 @@ class Calculator
 					$operator = "";
 					$cnt_o = 0;
 					$numbers[1] = "";
-	//				$cnt_n = 1;
 			}
-	//			$cnt_n++;
-
 		}
 		if ($numbers[0]) {
 			$expr1[] = $numbers[0];
 		}
-	var_dump($expr1);
 
 		return $expr1;
 	}
@@ -213,7 +169,6 @@ class Calculator
 
 		for ($i = 0; $i < count($value); $i++) {
 			$v = $value[$i];
-	//echo $v."\n";
 			if (is_numeric($v)) {
 				$numbers[$cnt_n] .= $v;
 				$cnt_n = 1;
@@ -225,14 +180,13 @@ class Calculator
 				} else {
 					$operator = $v;
 					$cnt_o = 1;
-				//	$cnt_n++;
 				}
 			} else {
 				// スペースなど数値と演算子以外を無視
 				echo "DEBUG:Space!\n";
 			}
 
-	echo "DEBUG:$numbers[0]$operator$numbers[1]\n";
+//echo "DEBUG:$numbers[0]$operator$numbers[1]\n";
 			if (is_numeric($numbers[1])) {
 				// 計算
 				$result = $this->calculation($numbers, $operator);
@@ -244,8 +198,6 @@ class Calculator
 				$cnt_o = 0;
 				$numbers[1] = "";
 			}
-
-	//var_dump($numbers);
 		}
 
 		return $numbers[0];
@@ -260,7 +212,7 @@ class Calculator
 			case '/':
 				if (!(int)$numbers[1]) {
 					// 0除算
-	echo "DEBUG:Division by ZERO\n";
+//echo "DEBUG:Division by ZERO\n";
 					return 'error';
 				}
 				$result = $numbers[0] / $numbers[1];
@@ -272,27 +224,24 @@ class Calculator
 				$result = $numbers[0] - $numbers[1];
 				break;
 		}
-	echo "calculation $numbers[0] $operator $numbers[1] =  $result\n";
+//echo "DEBUG:calculation $numbers[0] $operator $numbers[1] =  $result\n";
 		return (string)$result;
 	}
 
 	public function calculate($expr) {
 		if (!$this->check($expr)) {
-			echo "error\n";
 			return "error";
 		}
 		$expr1 = $this->perse($expr);
-		echo "expr = \n";
-		var_dump($expr1);
 
 		$result = $this->adding($expr1);
-		echo "result ".$result."\n";
 		return $result;
 	}
 }
 
 $calc = new Calculator();
 
-$calc->calculate($argv[1]);
+$result = $calc->calculate($argv[1]);
+echo $result."\n";
 
 
