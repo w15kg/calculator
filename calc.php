@@ -1,45 +1,6 @@
 <?php
 
 
-//var_dump($argv);
-
-function func1($param) {
-
-	$i = 0;
-	$d = array();
-	$operator = false;
-	$result;
-
-	$value = str_split($param);
-
-//	foreach($value as $v){
-	for($i = 0; $i < count($value); $i++) {
-
-		// 乗除を計算
-		echo $v."\n";
-		if ( preg_match('/[0-9]/',$v)) {
-//		if ( preg_match('/\d/',$v)) {
-			$d1 .= $v;
-			$operator = false;
-			echo "A\n";
-		} elseif (preg_match('/[\+\-\*\/]/',$v)) {
-			if ($operator) {
-				$d[$i] .= $v;
-				$operator = false;
-			} else {
-				$i++;
-				$operator = true;
-			}
-			echo "B\n";
-		} else {
-			echo "X\n";
-		}
-		echo $x."\n";
-	}
-
-	return $result;
-}
-
 function check($expr) {
 
 	// 先頭が乗除演算子の場合
@@ -185,8 +146,7 @@ function multiplying($expr) {
 			// スペースなど数値と演算子以外を無視
 			echo "DEBUG:Space!\n";
 		}
-echo "$operator\n";
-var_dump($numbers);
+echo "DEBUG:$numbers[0]$operator$numbers[1]\n";
 		if (is_numeric($numbers[1])) {
 				// 加減演算は保留
 				if (preg_match('/[\+\-]/', $operator)) {
@@ -219,29 +179,33 @@ var_dump($expr1);
 
 function adding($expr) {
 
+	// 乗除を先に行う
 	$expr = multiplying($expr);
 	if ($expr == "error") {
 		return $expr;
 	}
+
 	$value = $expr;
 
 	$numbers = array('','');
-	$cnt_o = 0;
+	$cnt_o = 1;
 	$operator = '';
 	$cnt_n = 0;
+
 	for ($i = 0; $i < count($value); $i++) {
 		$v = $value[$i];
 //echo $v."\n";
 		if (is_numeric($v)) {
 			$numbers[$cnt_n] .= $v;
 			$cnt_n = 1;
+			$cnt_o = 0;
 		} elseif (preg_match('/[\+\-\*\/]/',$v)) {
-			if ($operator) {
+			if ($cnt_o == 1) {
 				// 演算子が続いた場合、次の数字の正負記号となる（加減演算子であればOK）
 				$numbers[$cnt_n] .= $v;
 			} else {
 				$operator = $v;
-//				$cnt_o = 1;
+				$cnt_o = 1;
 			//	$cnt_n++;
 			}
 		} else {
@@ -249,6 +213,7 @@ function adding($expr) {
 			echo "DEBUG:Space!\n";
 		}
 
+echo "DEBUG:$numbers[0]$operator$numbers[1]\n";
 		if (is_numeric($numbers[1])) {
 			// 計算
 			$result = calculation($numbers, $operator);
@@ -257,42 +222,14 @@ function adding($expr) {
 			}
 			$numbers[0] = $result;
 			$operator = "";
+			$cnt_o = 0;
 			$numbers[1] = "";
 		}
 
-/*
-		if ( preg_match('/[0-9\.]/',$v)) {
-			$numbers[$cnt_n] .= $v;
-			$cnt_o = 0;
-		} elseif (preg_match('/[\+\-\*\/]/',$v)) {
-			if ($cnt_o > 0) {
-				// 演算子が続いた場合、加減演算子であればOK（次の数字の正負記号となる）
-				$numbers[$cnt_n] .= $v;
-				$cnt_o++;
-			} else {
-				if ($cnt_n == 1) {
-					// 計算
-					$result = calculation($numbers, $operator);
-
-					$cnt_n = 0;
-					$cnt_o = 0;
-					$numbers[0] = $result;
-					$numbers[1] = "";
-				}
-				$cnt_n++;
-				$cnt_o++;
-				$operator = $v;
-			}
-
-		} else {
-			// スペースなど数値と演算子以外を無視
-		}
-*/
-var_dump($numbers);
+//var_dump($numbers);
 	}
 
 	return $numbers[0];
-//	return calculation($numbers, $operator);
 }
 
 function calculation($numbers, $operator) {
@@ -322,21 +259,9 @@ echo "calculation $numbers[0] $operator $numbers[1] =  $result\n";
 
 check($argv[1]);
 $expr = perse($argv[1]);
-echo "expr = \n";
-var_dump($expr);
-//func1($argv[1]);
+//echo "expr = \n";
+//var_dump($expr);
 
-//$result = multiplying($expr);
-//echo "result ".$result."\n";
 $result = adding($expr);
 echo "result ".$result."\n";
-
-/*
-$str = '$ret=1/0;';
-eval($str);
-var_dump($ret."\n");
-*/
-
-//echo (int)2/(float)1.0;
-
 
