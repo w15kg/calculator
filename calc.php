@@ -7,23 +7,30 @@ class Calculator
 
 		// 先頭が乗除演算子の場合
 		if (preg_match('/^\s*[\*\/]/', $expr)) {
-			echo "invalid 1\n";
-			exit; 
+			//echo "invalid 1\n";
+			return false;
 		}
 		// 数字の間にスペースがある場合
 		if (preg_match('/[0-9][\s\(\)][0-9]/', $expr)) {
-			echo "invalid 2\n";
-			exit; 
+			//echo "invalid 2\n";
+			return false;
 		}
 		// 演算子が続く場合に乗除演算子が後に付く場合
 		if (preg_match('/[\+\-\*\/][\*\/]/', $expr)) {
-			echo "invalid 3\n";
-			exit; 
+			//echo "invalid 3\n";
+			return false;
 		}
 		// 演算子が３つ以上続く場合
 		if (preg_match('/[\+\-\*\/]{3}/', $expr)) {
-			echo "invalid 4\n";
-			exit; 
+			//echo "invalid 4\n";
+			return false;
+		}
+
+		// 整数のみを扱えることとする場合
+		// 数字の間にドットがある場合をエラーとする
+		if (preg_match('/[0-9][\.][0-9]/', $expr)) {
+			//echo "invalid 5\n";
+			return false;
 		}
 
 	/*
@@ -52,7 +59,7 @@ class Calculator
 		}
 	*/
 	echo "Check OK.\n";
-		return;
+		return true;
 	}
 
 	function perse($expr) {
@@ -129,7 +136,15 @@ class Calculator
 			if (is_array($v)) {
 				//$numbers[$cnt_n] = multiplying($v);
 				$numbers[$cnt_n] .= $this->adding($v);
-				// *戻り値がマイナスの場合に、--となってしまう
+				// *戻り値がマイナスの場合に、--となってしまう件
+				if (preg_match('/[\+\-]{2}/',$numbers[$cnt_n])) {
+					// +-が並ぶため置換
+					$numbers[$cnt_n] = str_replace('--','+',$numbers[$cnt_n]);
+					$numbers[$cnt_n] = str_replace('+-','-',$numbers[$cnt_n]);
+					$numbers[$cnt_n] = str_replace('-+','-',$numbers[$cnt_n]);
+					$numbers[$cnt_n] = str_replace('++','+',$numbers[$cnt_n]);
+
+				}
 
 				$cnt_n = 1;
 				$cnt_o = 0;
@@ -245,7 +260,7 @@ class Calculator
 			case '/':
 				if (!(int)$numbers[1]) {
 					// 0除算
-	echo "DEBUG:ZERO Divide\n";
+	echo "DEBUG:Division by ZERO\n";
 					return 'error';
 				}
 				$result = $numbers[0] / $numbers[1];
@@ -261,8 +276,11 @@ class Calculator
 		return (string)$result;
 	}
 
-	public function exec($expr) {
-		$this->check($expr);
+	public function calculate($expr) {
+		if (!$this->check($expr)) {
+			echo "error\n";
+			return "error";
+		}
 		$expr1 = $this->perse($expr);
 		echo "expr = \n";
 		var_dump($expr1);
@@ -275,6 +293,6 @@ class Calculator
 
 $calc = new Calculator();
 
-$calc->exec($argv[1]);
+$calc->calculate($argv[1]);
 
 
